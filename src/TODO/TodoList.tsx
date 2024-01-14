@@ -1,6 +1,7 @@
 import React,{useState, ChangeEvent} from 'react';
-import {Input, Button} from 'antd';
-import List from './List'
+import {Input,message} from 'antd';
+import List from './List';
+import {PlusOutlined} from '@ant-design/icons'
 
 export interface Todo {
     id:number,
@@ -12,19 +13,15 @@ export interface Todo {
 const TodoList:React.FC = () => {
     const [todo, setTodo] = useState<Todo[]>([])
     const [value, setValue] = useState<string>('')
-    const [isEdit, setIsEdit] = useState<boolean>(false)
-    const [done, setTodoDone] = useState<boolean>(false)
+    const [newValue, setNewValue] = useState<string>('')
     const  handleChange = (event:ChangeEvent<HTMLInputElement>) => {
         setValue(event.target.value)
     }
-
     const addTask = () => {
-        console.log(todo)
-        setTodo([...todo, { id: todo.length + 1, value: value, isEdit: false, done:false }]) 
+        setTodo([...todo, { id: new Date().getTime(), value: value, isEdit: false, done:false }]) 
         setValue('')
     }
     const deleteItem = (id:number) =>{
-        console.log(id)
         setTodo(todo.filter(el=>el.id!==id))
     }
     const setDone = (id: number) => {
@@ -35,6 +32,21 @@ const TodoList:React.FC = () => {
         );
       };
 
+      const setEdit =(id: number)=>{
+        setTodo((prevTodo) =>
+          todo.map((item) =>
+            item.id === id ? { ...item, isEdit: !item.isEdit } : item
+          )
+        );
+      }
+      const changeList =(id: number, value:string)=> {
+        console.log(id, value )
+        setTodo((prevTodo) =>
+        todo.map((item) =>
+          item.id === id ? { ...item, value: value, isEdit: !item.isEdit } : item
+        )
+      );
+      }
 
   return (
     <div>
@@ -42,11 +54,11 @@ const TodoList:React.FC = () => {
 
         <div className='menu'>
             <Input className='input'value={value} onChange={handleChange} />
-            <Button onClick={()=>addTask()}> Добавить </Button>
+            <PlusOutlined className='btn-add' onClick={()=>value==''?message.error('Вы ничего не ввели!'): addTask()}/>
         </div>
 
         <div className='content-list'>
-            {todo.map((list, index)=><List list={list} index={index} deleteItem={deleteItem} setDone={setDone}/>)}
+            {todo.map((list, index)=><List list={list} index={index} deleteItem={deleteItem} setDone={setDone} setEdit={setEdit} setNewValue={setNewValue} changeList={changeList} newValue={newValue}/>)}
         </div>
 
     </div>
